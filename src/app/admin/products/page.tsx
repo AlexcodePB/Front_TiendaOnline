@@ -29,7 +29,8 @@ interface ApiResponse {
   pagination: {
     currentPage: number;
     totalPages: number;
-    totalItems: number;
+    totalItems?: number;
+    total?: number;
     itemsPerPage: number;
   };
 }
