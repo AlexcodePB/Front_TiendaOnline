@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { X, Package, Image as ImageIcon, Upload, CheckCircle2, AlertTriangle } from 'lucide-react';
 import axiosInstance from '@/utils/axiosConfig';
 import { useToastContext } from '@/contexts/ToastContext';
+import Dropdown from '@/components/ui/Dropdown';
 
 interface Product {
   id: string;
@@ -133,7 +134,7 @@ export default function EditProductModal({
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
@@ -344,19 +345,17 @@ export default function EditProductModal({
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Categoría
             </label>
-            <select
-              name="category"
+            <Dropdown
+              options={categories.map(category => ({
+                value: category,
+                label: category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')
+              }))}
               value={formData.category}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            >
-              {categories.map(category => (
-                <option key={category} value={category}>
-                  {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
-                </option>
-              ))}
-            </select>
+              onChange={(value) => setFormData({ ...formData, category: value })}
+              placeholder="Selecciona una categoría"
+              error={!categoryValid}
+              variant="default"
+            />
             {!categoryValid && (
               <p className="mt-1 text-xs text-red-600">Selecciona una categoría válida.</p>
             )}
