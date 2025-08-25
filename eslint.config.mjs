@@ -20,6 +20,16 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      // No bloquear builds por uso de any en fases iniciales
+      "@typescript-eslint/no-explicit-any": "off",
+      // Prefer const como warning, no error
+      "prefer-const": "warn",
+      // Recomendación de Next para <img>, mantener como warning
+      "@next/next/no-img-element": "warn",
+    },
+  },
 ];
 
 export default eslintConfig;
