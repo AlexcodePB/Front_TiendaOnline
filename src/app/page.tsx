@@ -1,103 +1,118 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import ProductCard from '@/components/ProductCard';
+import { useAuth } from '@/contexts/AuthContext';
+import { productsApi } from '@/services/api';
+import { Product } from '@/types';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { user, isAuthenticated, isLoading: isAuthLoading } = useAuth();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setIsLoading(true);
+        const response = await productsApi.getAll({ limit: 8 }); // Fetch first 8 products
+        setProducts(response.data);
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Hero Section */}
+      <section 
+        className="relative bg-cover bg-center bg-no-repeat min-h-[60vh] md:min-h-[70vh] flex items-center"
+        style={{
+          backgroundImage: "linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.3)), url('https://res.cloudinary.com/dxkbeygys/image/upload/v1756074128/Hero_fqtkex.jpg')"
+        }}
+      >
+        <div className="w-full">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center text-white">
+              <div className="max-w-4xl mx-auto">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black mb-6 tracking-tight">
+                  <span className="block drop-shadow-2xl">DOMINA</span>
+                  <span className="block drop-shadow-2xl text-orange-400">LA CALLE</span>
+                </h1>
+                <p className="text-xl md:text-2xl lg:text-3xl mb-10 text-gray-100 max-w-3xl mx-auto leading-relaxed drop-shadow-lg font-medium">
+                  Equipamiento Pro para tu próximo truco.<br />
+                  <span className="text-orange-200">Calidad que se siente en cada giro.</span>
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                  <button className="bg-orange-500 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-2xl border-2 border-orange-400">
+                    VER EQUIPAMIENTO
+                  </button>
+                  <button className="bg-white/10 backdrop-blur-sm text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/20 transition-all duration-300 border-2 border-white/30 hover:border-white/50">
+                    EXPLORAR MARCAS
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center">
+            <div className="w-1 h-3 bg-white rounded-full mt-2 animate-pulse"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        {/* Section Title */}
+        <div className="text-center mb-8 md:mb-12">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+            Lo Más Nuevo
+          </h2>
+          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+            Nuestra selección de material recién llegado.
+          </p>
+        </div>
+
+        {/* Featured Products Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
+          {isLoading ? (
+            Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="border border-gray-200 rounded-lg p-4">
+                <div className="bg-gray-200 h-48 w-full animate-pulse"></div>
+                <div className="bg-gray-200 h-6 w-3/4 mt-4 animate-pulse"></div>
+                <div className="bg-gray-200 h-8 w-1/4 mt-2 animate-pulse"></div>
+              </div>
+            ))
+          ) : (
+            products.map((product) => (
+              <ProductCard 
+                key={product.id} 
+                product={product}
+                className="transform hover:scale-105 transition-transform duration-200 animate-fade-in"
+              />
+            ))
+          )}
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+    </>
   );
 }
