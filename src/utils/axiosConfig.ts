@@ -1,4 +1,4 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
+import axios, { type InternalAxiosRequestConfig, type AxiosResponse, type AxiosError, type AxiosRequestHeaders } from 'axios';
 
 // Configuración base de axios
 const axiosInstance = axios.create({
@@ -8,14 +8,16 @@ const axiosInstance = axios.create({
 
 // Request interceptor para agregar token automáticamente
 axiosInstance.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
-    // Obtener token del localStorage
-    const token = localStorage.getItem('token');
-    
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
+  (config: InternalAxiosRequestConfig) => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (token) {
+      // Compatibilidad con AxiosHeaders y objetos planos
+      if (typeof (config.headers as any)?.set === 'function') {
+        (config.headers as any).set('Authorization', `Bearer ${token}`);
+      } else {
+        (config.headers as AxiosRequestHeaders)['Authorization'] = `Bearer ${token}` as any;
+      }
     }
-    
     return config;
   },
   (error: AxiosError) => {
